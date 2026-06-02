@@ -602,7 +602,7 @@ class _ProfileViewState extends State<ProfileView> {
       ),
       bottomNavigationBar: CustomBottomNavBar(
         role: role,
-        currentIndex: role == 'customer' || role == 'user' ? 2 : 3,
+        currentIndex: role == 'customer' || role == 'user' ? 2 : 4,
       ),
     );
   }

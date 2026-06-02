@@ -23,8 +23,18 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
 
   String _getMonthName(int monthNum) {
     const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
     ];
     if (monthNum >= 1 && monthNum <= 12) {
       return months[monthNum - 1];
@@ -70,7 +80,12 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
     if (result['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['message'] ?? (accept ? 'Pembayaran berhasil dikonfirmasi' : 'Pembayaran berhasil ditolak')),
+          content: Text(
+            result['message'] ??
+                (accept
+                    ? 'Pembayaran berhasil dikonfirmasi'
+                    : 'Pembayaran berhasil ditolak'),
+          ),
           backgroundColor: const Color(0xFF2EBD59),
         ),
       );
@@ -92,13 +107,14 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
     final service = bill.service;
 
     // Customer details
-    final customerName = customer?.name ?? 'Sonthony Mackie';
-    final customerNum = customer?.customerNumber ?? 'C-33';
-    final serviceName = service?.name ?? 'Rumah A';
-    final customerAddress = customer?.address ?? 'Jl. Kepala Muda No. 67';
+    final customerName = customer?.name ?? 'Customer';
+    final customerNum = customer?.customerNumber;
+    final serviceName = service?.name;
+    final customerAddress = customer?.address;
 
     // Amount formatting
-    final formattedPrice = 'Rp ${bill.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+    final formattedPrice =
+        'Rp ${bill.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
     return Scaffold(
       body: Container(
@@ -108,10 +124,7 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF729AC4),
-              Color(0xFF031B46),
-            ],
+            colors: [Color(0xFF729AC4), Color(0xFF031B46)],
           ),
         ),
         child: SafeArea(
@@ -120,14 +133,19 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
                         InkWell(
-                          onTap: _isProcessing ? null : () => Navigator.pop(context),
+                          onTap: _isProcessing
+                              ? null
+                              : () => Navigator.pop(context),
                           borderRadius: BorderRadius.circular(12),
                           child: Container(
                             padding: const EdgeInsets.all(8),
@@ -176,7 +194,10 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                     ),
                   ),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 24,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -184,10 +205,10 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                         Container(
                           padding: const EdgeInsets.all(14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.12),
+                              color: const Color(0xFF035191).withOpacity(0.3),
                               width: 1.5,
                             ),
                           ),
@@ -242,10 +263,10 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.12),
+                              color: const Color(0xFF035191).withOpacity(0.3),
                               width: 1.5,
                             ),
                           ),
@@ -261,22 +282,41 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                                 ),
                               ),
                               const SizedBox(height: 14),
-                              _buildDetailRow('Periode', '${_getMonthName(bill.month)} ${bill.year}'),
-                              const Divider(height: 20, color: Color(0xFFE8EEF5)),
-                              _buildDetailRow('No meteran', bill.measurementNumber),
-                              const Divider(height: 20, color: Color(0xFFE8EEF5)),
-                              _buildDetailRow('Total Penggunaan', '${bill.usageValue} m³'),
+                              _buildDetailRow(
+                                'Periode',
+                                '${_getMonthName(bill.month)} ${bill.year}',
+                              ),
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
+                              _buildDetailRow(
+                                'No meteran',
+                                bill.measurementNumber,
+                              ),
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
+                              _buildDetailRow(
+                                'Total Penggunaan',
+                                '${bill.usageValue} m³',
+                              ),
                               const SizedBox(height: 16),
 
                               // Total Row with Solid Blue Box
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF0B4B85),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text(
                                       'Total',
@@ -306,24 +346,34 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                         Container(
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.12),
+                              color: const Color(0xFF035191).withOpacity(0.3),
                               width: 1.5,
                             ),
                           ),
                           child: bill.payment == null
                               ? const Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 36, horizontal: 16),
+                                  padding: EdgeInsets.symmetric(
+                                    vertical: 36,
+                                    horizontal: 16,
+                                  ),
                                   child: Column(
                                     children: [
-                                      Icon(Icons.info_outline_rounded, color: Colors.grey, size: 48),
+                                      Icon(
+                                        Icons.info_outline_rounded,
+                                        color: Colors.grey,
+                                        size: 48,
+                                      ),
                                       SizedBox(height: 12),
                                       Text(
                                         'Pelanggan belum mengunggah bukti pembayaran',
                                         textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -331,7 +381,8 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                               : Padding(
                                   padding: const EdgeInsets.all(12),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const Text(
                                         'Bukti Pembayaran',
@@ -343,7 +394,8 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                                       ),
                                       const SizedBox(height: 12),
                                       PaymentProofPreview(
-                                        paymentProof: bill.payment!.paymentProof,
+                                        paymentProof:
+                                            bill.payment!.paymentProof,
                                         token: widget.token,
                                         height: 320,
                                         fit: BoxFit.contain,
@@ -371,7 +423,9 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: ElevatedButton(
-                                    onPressed: _isProcessing ? null : () => _verifyPayment(true),
+                                    onPressed: _isProcessing
+                                        ? null
+                                        : () => _verifyPayment(true),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
                                       shadowColor: Colors.transparent,
@@ -417,7 +471,9 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: ElevatedButton(
-                                    onPressed: _isProcessing ? null : () => _verifyPayment(false),
+                                    onPressed: _isProcessing
+                                        ? null
+                                        : () => _verifyPayment(false),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
                                       shadowColor: Colors.transparent,
@@ -466,10 +522,7 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF729AC4),
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: Color(0xFF729AC4), fontSize: 14),
         ),
         Text(
           value,
@@ -482,5 +535,4 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
       ],
     );
   }
-
 }

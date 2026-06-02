@@ -8,14 +8,20 @@ class AuthService {
     final Uri uri = Uri.parse(loginURL);
 
     try {
+      final requestJson = request.toJson();
+      print('[DEBUG] login request body: $requestJson');
+
       final response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'APP-KEY': appKey,
         },
-        body: jsonEncode(request.toJson()),
+        body: jsonEncode(requestJson),
       );
+
+      print('[DEBUG] login response status: ${response.statusCode}');
+      print('[DEBUG] login response body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final Map<String, dynamic> data = jsonDecode(response.body);

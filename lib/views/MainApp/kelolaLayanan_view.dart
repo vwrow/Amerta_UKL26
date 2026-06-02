@@ -58,7 +58,7 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Terjadi kesalahan: \$e';
+        _errorMessage = 'Terjadi kesalahan: $e';
         _isLoading = false;
       });
     }
@@ -440,7 +440,7 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                 ),
               ),
               content: Text(
-                'Apakah Anda yakin ingin menghapus layanan "\${item.name}"?',
+                'Apakah Anda yakin ingin menghapus layanan "${item.name}"?',
                 style: const TextStyle(
                   color: Color(0xFF031B46),
                   fontSize: 14,
@@ -517,6 +517,45 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
           },
         );
       },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Blue Icon with Ban Symbol
+            Image.asset(
+              'assets/additional_icons/cuciTangan.png',
+              width: 140,
+              height: 140,
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'Belum Ada Layanan',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF0B4B85),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Tambahkan layanan baru beserta datanya',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF729AC4),
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -600,15 +639,7 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                               ),
                             )
                           : _layananList.isEmpty
-                              ? const Center(
-                                  child: Text(
-                                    'Tidak ada data layanan',
-                                    style: TextStyle(
-                                      color: Color(0xFF031B46),
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                )
+                              ? _buildEmptyState()
                               : ListView.builder(
                                   padding: const EdgeInsets.fromLTRB(
                                       20, 24, 20, 80),

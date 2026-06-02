@@ -91,8 +91,18 @@ class _TagihanViewState extends State<TagihanView> {
 
   String _getMonthName(int monthNum) {
     const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
     ];
     if (monthNum >= 1 && monthNum <= 12) {
       return months[monthNum - 1];
@@ -104,10 +114,8 @@ class _TagihanViewState extends State<TagihanView> {
     final updated = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => RincianTagihanView(
-          bill: bill,
-          token: _session!.token,
-        ),
+        builder: (context) =>
+            RincianTagihanView(bill: bill, token: _session!.token),
       ),
     );
     if (updated is BillModel) {
@@ -119,10 +127,8 @@ class _TagihanViewState extends State<TagihanView> {
     final updated = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BayarTagihanView(
-          bill: bill,
-          token: _session!.token,
-        ),
+        builder: (context) =>
+            BayarTagihanView(bill: bill, token: _session!.token),
       ),
     );
     if (updated is BillModel) {
@@ -134,7 +140,8 @@ class _TagihanViewState extends State<TagihanView> {
   Widget _buildBillItem(BillModel bill) {
     final monthName = _getMonthName(bill.month);
     final usage = bill.usageValue;
-    final formattedPrice = 'Rp ${bill.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+    final formattedPrice =
+        'Rp ${bill.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
     // Status logic
     final isVerified = bill.verifiedPayment;
@@ -190,10 +197,16 @@ class _TagihanViewState extends State<TagihanView> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: softBgColor,
-                  border: Border.all(color: themeColor.withOpacity(0.4), width: 1.2),
+                  border: Border.all(
+                    color: themeColor.withOpacity(0.4),
+                    width: 1.2,
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -214,7 +227,11 @@ class _TagihanViewState extends State<TagihanView> {
             children: [
               Text(
                 '$usage m³',
-                style: const TextStyle(color: Color(0xFF729AC4), fontSize: 13, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  color: Color(0xFF729AC4),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(width: 8),
               Container(
@@ -250,7 +267,10 @@ class _TagihanViewState extends State<TagihanView> {
                     child: OutlinedButton(
                       onPressed: () => _navigateToDetails(bill),
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF0B4B85), width: 1.2),
+                        side: const BorderSide(
+                          color: Color(0xFF0B4B85),
+                          width: 1.2,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -273,20 +293,35 @@ class _TagihanViewState extends State<TagihanView> {
                   flex: 6,
                   child: SizedBox(
                     height: 40,
-                    child: ElevatedButton(
-                      onPressed: () => _navigateToPay(bill),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0B4B85),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        gradient: const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xFF5A8FD4), Color(0xFF036BA1)],
                         ),
                       ),
-                      child: const Text(
-                        'Bayar Sekarang',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                      child: ElevatedButton(
+                        onPressed: () => _navigateToPay(bill),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors
+                              .transparent, // Makes the button transparent
+                          shadowColor: Colors.transparent, // Removes the shadow
+                          elevation: 0, // Flattens the button
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              10,
+                            ), // Matches container radius
+                          ),
+                        ),
+                        child: const Text(
+                          'Bayar Sekarang',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
                     ),
@@ -333,10 +368,7 @@ class _TagihanViewState extends State<TagihanView> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF729AC4),
-              Color(0xFF031B46),
-            ],
+            colors: [Color(0xFF729AC4), Color(0xFF031B46)],
           ),
         ),
         child: SafeArea(
@@ -345,7 +377,10 @@ class _TagihanViewState extends State<TagihanView> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -386,41 +421,41 @@ class _TagihanViewState extends State<TagihanView> {
                           ),
                         )
                       : _errorMessage != null
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: Text(
-                                  _errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF031B46),
-                                    fontSize: 16,
-                                  ),
-                                ),
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              _errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF031B46),
+                                fontSize: 16,
                               ),
-                            )
-                          : _billsList.isEmpty
-                              ? const Center(
-                                  child: Text(
-                                    'Tidak ada data tagihan',
-                                    style: TextStyle(
-                                      color: Color(0xFF031B46),
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                )
-                              : RefreshIndicator(
-                                  onRefresh: _refreshBills,
-                                  color: const Color(0xFF0B4B85),
-                                  child: ListView.builder(
-                                    padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
-                                    itemCount: _billsList.length,
-                                    itemBuilder: (context, index) {
-                                      final bill = _billsList[index];
-                                      return _buildBillItem(bill);
-                                    },
-                                  ),
-                                ),
+                            ),
+                          ),
+                        )
+                      : _billsList.isEmpty
+                      ? const Center(
+                          child: Text(
+                            'Tidak ada data tagihan',
+                            style: TextStyle(
+                              color: Color(0xFF031B46),
+                              fontSize: 16,
+                            ),
+                          ),
+                        )
+                      : RefreshIndicator(
+                          onRefresh: _refreshBills,
+                          color: const Color(0xFF0B4B85),
+                          child: ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
+                            itemCount: _billsList.length,
+                            itemBuilder: (context, index) {
+                              final bill = _billsList[index];
+                              return _buildBillItem(bill);
+                            },
+                          ),
+                        ),
                 ),
               ),
             ],

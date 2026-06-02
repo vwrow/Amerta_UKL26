@@ -199,10 +199,9 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                             controller: passwordCtrl,
                             hint: 'Masukkan password',
                             obscureText: true,
-                            caption: 'Password minimal 8 karakter dengan simbol dan angka',
-                            validator: (v) => (v == null || v.length < 8)
-                                ? 'Password minimal 8 karakter'
-                                : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Password tidak boleh kosong'
+                              : null,
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -599,6 +598,46 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
     );
   }
 
+
+ Widget _buildEmptyState() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(28.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Blue Icon with Ban Symbol
+            Image.asset(
+              'assets/additional_icons/cuciTangan.png',
+              width: 140,
+              height: 140,
+            ),
+            const SizedBox(height: 32),
+            const Text(
+              'Belum Ada Pelanggan',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF0B4B85),
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Tambahkan akun pelanggan beserta datanya',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color(0xFF729AC4),
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ─── Build ───────────────────────────────────────────────────────
   @override
   Widget build(BuildContext context) {
@@ -678,15 +717,7 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                               ),
                             )
                           : _pelangganList.isEmpty
-                              ? const Center(
-                                  child: Text(
-                                    'Tidak ada data pelanggan',
-                                    style: TextStyle(
-                                      color: Color(0xFF031B46),
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                )
+                              ? _buildEmptyState()
                               : ListView.builder(
                                   padding: const EdgeInsets.fromLTRB(20, 24, 20, 80),
                                   itemCount: _pelangganList.length,

@@ -39,6 +39,8 @@ flutter:
     - assets/navBar_icons/kPelanggan_outline.png
     - assets/navBar_icons/kLayanan.png
     - assets/navBar_icons/kLayanan_outline.png
+    - assets/navBar_icons/kTagihan.png
+    - assets/navBar_icons/kTagihan_outline.png
     - assets/navBar_icons/profile.png
     - assets/navBar_icons/profile_outline.png
     - assets/navBar_icons/tagihan.png
@@ -47,6 +49,7 @@ flutter:
     - assets/additional_icons/edit.png
     - assets/additional_icons/delete.png
     - assets/additional_icons/belumBayar.png
+    - assets/additional_icons/cuciTangan.png
     - assets/additional_icons/belumDibayar.png
     - assets/additional_icons/fileDikirim.png
     - assets/additional_icons/jLayanan.png

@@ -25,6 +25,10 @@ class CustomBottomNavBar extends StatelessWidget {
       route: '/kelolaLayanan',
     ),
     _NavItem(
+      assetName: 'kTagihan',
+      route: '/kelolaTagihan',
+    ),
+    _NavItem(
       assetName: 'profile',
       route: '/profile',
     ),
@@ -55,13 +59,14 @@ class CustomBottomNavBar extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft,
+          begin: Alignment.topCenter,
           end: Alignment.bottomRight,
           colors: [
             Color(0xFF0B4B85),
             Color(0xFF043265),
           ],
         ),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(15),topRight: Radius.circular(15))
       ),
       child: SafeArea(
         top: false,

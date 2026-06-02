@@ -43,6 +43,18 @@ class PelangganService {
     required String phone,
   }) async {
     try {
+      final requestBody = {
+        'username': username,
+        'password': password,
+        'password_confirmation': password,
+        'customer_number': customerNumber,
+        'address': address,
+        'service_id': serviceId,
+        'name': name,
+        'phone': phone,
+      };
+      print('[DEBUG] createPelanggan request body: $requestBody');
+
       final response = await http.post(
         Uri.parse(customerURL),
         headers: {
@@ -50,16 +62,11 @@ class PelangganService {
           'APP-KEY': appKey,
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'username': username,
-          'password': password,
-          'customer_number': customerNumber,
-          'address': address,
-          'service_id': serviceId,
-          'name': name,
-          'phone': phone,
-        }),
+        body: jsonEncode(requestBody),
       );
+
+      print('[DEBUG] createPelanggan response status: ${response.statusCode}');
+      print('[DEBUG] createPelanggan response body: ${response.body}');
 
       final Map<String, dynamic> body = jsonDecode(response.body);
       return body;

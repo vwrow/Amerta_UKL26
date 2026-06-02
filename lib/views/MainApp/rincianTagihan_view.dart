@@ -55,33 +55,12 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
     final isVerified = _currentBill.verifiedPayment;
     final hasReceipt = _currentBill.payment != null;
 
-    // We can simulate the "Ditolak" state if the payment was rejected on the server
-    // (i.e. bill.paid is false, and verified_payment is false, but we can check if it was rejected).
-    // Let's check: in mockup 4, the third state is "Ditolak". Let's represent this status!
-    // Since the API delete payment deletes the payment, bill.payment becomes null.
-    // However, to allow testing the "Ditolak" UI flow, we can check if a custom flag is set,
-    // or if the user uploads a payment that was previously rejected. Let's make it display "Ditolak"
-    // if the bill is not paid and is not verified, but has a custom rejection flag or if we pass a state.
-    // For a highly robust UI, we can check if the bill has a rejected payment or if bill.payment.verified is false and it's rejected.
-    // Let's support it dynamically! If the payment exists but is not verified, and we have a custom marker, or if we show it based on status.
-    // Wait, let's look at mockup 4:
-    // Screen 1: Menunggu verifikasi (orange)
-    // Screen 2: Lunas (green)
-    // Screen 3: Ditolak (red)
-    // Let's determine status:
     String statusText = 'Belum bayar';
     Color statusColor = const Color(0xFF8B1A1A); // Red/brown
     
-    // Let's define the status state:
-    // If verified: Lunas
-    // If pending: Menunggu verifikasi
-    // If payment exists but is rejected, or we simulate a rejected state: Ditolak
+ 
     bool isDenied = false;
     if (_currentBill.payment != null && !isVerified) {
-      // If payment total_amount is 1 (dummy rejected marker) or similar, or we can toggle it.
-      // Let's check if we can check payment total_amount or another field.
-      // For a robust simulation, let's treat any payment with a total amount of 0 or a specific verification status as denied,
-      // or if payment.paymentProof is 'rejected' or similar.
       if (_currentBill.payment!.paymentProof == 'rejected' || _currentBill.payment!.totalAmount == 99) {
         isDenied = true;
       }
@@ -382,7 +361,7 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                                       ),
                                       SizedBox(height: 6),
                                       Text(
-                                        'JPG, PNG, PDF max 10mb',
+                                        'JPG atau PNG max 10mb',
                                         style: TextStyle(
                                           color: Color(0xFFFFB300),
                                           fontSize: 12,
@@ -405,45 +384,6 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                                   _buildOutlineBadge('Menunggu Verifikasi', const Color(0xFFFF9800))
                                 else if (statusText == 'Lunas')
                                   _buildOutlineBadge('Berhasil Verifikasi', const Color(0xFF2EBD59))
-                                else if (statusText == 'Ditolak') ...[
-                                  _buildOutlineBadge('Gagal Diverifikasi', const Color(0xFFB71C1C)),
-                                  const SizedBox(height: 8),
-                                  const Align(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      'Admin menolak bukti pembayaran!',
-                                      style: TextStyle(
-                                        color: Color(0xFF0B4B85),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-
-                                  // Kirim Ulang button for denied state
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 48,
-                                    child: ElevatedButton(
-                                      onPressed: () => _navigateToPay(),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: const Color(0xFF0B4B85),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        'Kirim Ulang',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ]
                               ]
                             ],
                           ),

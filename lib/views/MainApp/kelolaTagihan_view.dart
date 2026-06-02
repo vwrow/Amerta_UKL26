@@ -5,6 +5,7 @@ import '../../models/pelanggan_model.dart';
 import '../../services/user_session_service.dart';
 import '../../services/bill_service.dart';
 import '../../services/pelanggan_service.dart';
+import '../../widgets/navBar_widget.dart';
 import 'verifikasiTagihan_view.dart';
 
 class KelolaTagihanView extends StatefulWidget {
@@ -41,7 +42,9 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
 
       if (session != null && session.token.isNotEmpty) {
         final bills = await _billService.getBills(token: session.token);
-        final customers = await _pelangganService.getPelanggan(token: session.token);
+        final customers = await _pelangganService.getPelanggan(
+          token: session.token,
+        );
 
         if (!mounted) return;
 
@@ -103,19 +106,26 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
     }
   }
 
-
   // ─── Add / Edit Bill Dialog ──────────────────────────────────────
   void _showBillDialog({BillModel? existing}) {
     final isEdit = existing != null;
     final formKey = GlobalKey<FormState>();
 
     // Controllers
-    final monthCtrl = TextEditingController(text: existing?.month.toString() ?? DateTime.now().month.toString());
-    final yearCtrl = TextEditingController(text: existing?.year.toString() ?? DateTime.now().year.toString());
-    final measurementNumberCtrl = TextEditingController(
-      text: existing?.measurementNumber ?? 'M-${100000 + (DateTime.now().millisecond * 133) % 899999}',
+    final monthCtrl = TextEditingController(
+      text: existing?.month.toString() ?? DateTime.now().month.toString(),
     );
-    final usageValueCtrl = TextEditingController(text: existing?.usageValue.toString() ?? '');
+    final yearCtrl = TextEditingController(
+      text: existing?.year.toString() ?? DateTime.now().year.toString(),
+    );
+    final measurementNumberCtrl = TextEditingController(
+      text:
+          existing?.measurementNumber ??
+          'M-${100000 + (DateTime.now().millisecond * 133) % 899999}',
+    );
+    final usageValueCtrl = TextEditingController(
+      text: existing?.usageValue.toString() ?? '',
+    );
 
     int? selectedCustomerId = existing?.customerId;
     bool isSaving = false;
@@ -131,7 +141,10 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
-              insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 24,
+              ),
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -181,24 +194,39 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                             value: selectedCustomerId,
                             hint: const Text(
                               'Pilih pelanggan terdaftar',
-                              style: TextStyle(color: Color(0xFF729AC4), fontSize: 14),
+                              style: TextStyle(
+                                color: Color(0xFF729AC4),
+                                fontSize: 14,
+                              ),
                             ),
                             dropdownColor: Colors.white,
                             decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.white,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 14,
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF729AC4),
+                                  width: 1,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF729AC4),
+                                  width: 1,
+                                ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(color: Color(0xFF033A82), width: 2),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF033A82),
+                                  width: 2,
+                                ),
                               ),
                             ),
                             items: _pelangganList.map((customer) {
@@ -206,7 +234,10 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                 value: customer.id,
                                 child: Text(
                                   '${customer.name} (${customer.customerNumber})',
-                                  style: const TextStyle(color: Color(0xFF031B46), fontSize: 14),
+                                  style: const TextStyle(
+                                    color: Color(0xFF031B46),
+                                    fontSize: 14,
+                                  ),
                                 ),
                               );
                             }).toList(),
@@ -217,7 +248,8 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                       selectedCustomerId = val;
                                     });
                                   },
-                            validator: (v) => v == null ? 'Silakan pilih pelanggan' : null,
+                            validator: (v) =>
+                                v == null ? 'Silakan pilih pelanggan' : null,
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -232,7 +264,8 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'Wajib diisi';
                             final m = int.tryParse(v);
-                            if (m == null || m < 1 || m > 12) return 'Bulan harus 1 - 12';
+                            if (m == null || m < 1 || m > 12)
+                              return 'Bulan harus 1 - 12';
                             return null;
                           },
                         ),
@@ -248,7 +281,8 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'Wajib diisi';
                             final y = int.tryParse(v);
-                            if (y == null || y < 2000 || y > 2100) return 'Tahun tidak valid';
+                            if (y == null || y < 2000 || y > 2100)
+                              return 'Tahun tidak valid';
                             return null;
                           },
                         ),
@@ -260,7 +294,9 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                         _buildTextField(
                           controller: measurementNumberCtrl,
                           hint: 'Contoh: M-132422',
-                          validator: (v) => (v == null || v.trim().isEmpty) ? 'Wajib diisi' : null,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Wajib diisi'
+                              : null,
                         ),
                         const SizedBox(height: 16),
 
@@ -274,7 +310,8 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'Wajib diisi';
                             final val = int.tryParse(v);
-                            if (val == null || val < 0) return 'Penggunaan tidak valid';
+                            if (val == null || val < 0)
+                              return 'Penggunaan tidak valid';
                             return null;
                           },
                         ),
@@ -286,10 +323,7 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                           height: 52,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF4A90E2),
-                                Color(0xFF0B4B85),
-                              ],
+                              colors: [Color(0xFF4A90E2), Color(0xFF0B4B85)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -299,7 +333,8 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                             onPressed: isSaving
                                 ? null
                                 : () async {
-                                    if (!formKey.currentState!.validate()) return;
+                                    if (!formKey.currentState!.validate())
+                                      return;
                                     setDialogState(() => isSaving = true);
 
                                     final token = _session!.token;
@@ -311,8 +346,12 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                         id: existing.id,
                                         month: int.parse(monthCtrl.text.trim()),
                                         year: int.parse(yearCtrl.text.trim()),
-                                        measurementNumber: measurementNumberCtrl.text.trim(),
-                                        usageValue: int.parse(usageValueCtrl.text.trim()),
+                                        measurementNumber: measurementNumberCtrl
+                                            .text
+                                            .trim(),
+                                        usageValue: int.parse(
+                                          usageValueCtrl.text.trim(),
+                                        ),
                                       );
                                     } else {
                                       result = await _billService.createBill(
@@ -320,8 +359,12 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                         customerId: selectedCustomerId!,
                                         month: int.parse(monthCtrl.text.trim()),
                                         year: int.parse(yearCtrl.text.trim()),
-                                        measurementNumber: measurementNumberCtrl.text.trim(),
-                                        usageValue: int.parse(usageValueCtrl.text.trim()),
+                                        measurementNumber: measurementNumberCtrl
+                                            .text
+                                            .trim(),
+                                        usageValue: int.parse(
+                                          usageValueCtrl.text.trim(),
+                                        ),
                                       );
                                     }
 
@@ -331,7 +374,9 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                       Navigator.pop(ctx);
                                       _refreshData();
                                       if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
                                             content: Text(
                                               result['message'] ??
@@ -339,17 +384,22 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                                       ? 'Tagihan diperbarui'
                                                       : 'Tagihan ditambahkan'),
                                             ),
-                                            backgroundColor: const Color(0xFF2EBD59),
+                                            backgroundColor: const Color(
+                                              0xFF2EBD59,
+                                            ),
                                           ),
                                         );
                                       }
                                     } else {
                                       setDialogState(() => isSaving = false);
                                       if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              result['message'] ?? 'Terjadi kesalahan',
+                                              result['message'] ??
+                                                  'Terjadi kesalahan',
                                             ),
                                             backgroundColor: Colors.red,
                                           ),
@@ -374,7 +424,9 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                     ),
                                   )
                                 : Text(
-                                    isEdit ? 'Simpan Perubahan' : 'Tambah Tagihan',
+                                    isEdit
+                                        ? 'Simpan Perubahan'
+                                        : 'Tambah Tagihan',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -422,7 +474,10 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
         hintStyle: const TextStyle(color: Color(0xFF729AC4), fontSize: 14),
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
@@ -467,10 +522,7 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
               ),
               content: Text(
                 'Apakah Anda yakin ingin menghapus tagihan pelanggan "${item.customer?.name ?? 'Pelanggan'}"?',
-                style: const TextStyle(
-                  color: Color(0xFF031B46),
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Color(0xFF031B46), fontSize: 14),
               ),
               actions: [
                 TextButton(
@@ -556,13 +608,13 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
           children: [
             // Blue Icon with Ban Symbol
             Image.asset(
-              'assets/additional_icons/belumBayar.png',
+              'assets/additional_icons/cuciTangan.png',
               width: 140,
               height: 140,
             ),
             const SizedBox(height: 32),
             const Text(
-              'Yahh, pelanggan belum membayar',
+              'Belum Ada Tagihan',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF0B4B85),
@@ -572,7 +624,7 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Data pembayaran serta bukti akan muncul setelah pelanggan mengonfirmasi pembayaran',
+              'Tambah tagihan untuk pelanggan tersedia',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Color(0xFF729AC4),
@@ -596,31 +648,26 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
         final customerName = item.customer?.name ?? 'Sonthony Mackie';
         final serviceName = item.service?.name ?? 'Rumah B';
         final friendlyTime = _getFriendlyTime(item.createdAt);
-        final priceFormatted = 'Rp ${item.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+        final priceFormatted =
+            'Rp ${item.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
         // Check if verified
         final isVerified = item.verifiedPayment;
         final hasPaymentProof =
-            item.payment != null && item.payment!.paymentProof.trim().isNotEmpty;
+            item.payment != null &&
+            item.payment!.paymentProof.trim().isNotEmpty;
         final canVerify = hasPaymentProof && !isVerified;
 
         return Container(
           margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFF035191).withOpacity(0.12),
-              width: 1.5,
+              color: const Color(0xFF035191).withOpacity(0.3),
+              width: 2,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0B4B85).withOpacity(0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
           ),
           child: Column(
             children: [
@@ -703,14 +750,21 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: isVerified
-                            ? const Color(0xFF2EBD59)
-                            : const Color(0xFFFFF8E1),
+                        gradient: LinearGradient(
+                          colors: isVerified
+                              ? [Color(0xFF00D270), Color(0xFF0D8C42)]
+                              : [
+                                  Color.fromARGB(10, 153, 248, 0),
+                                  Color.fromARGB(10, 141, 201, 0),
+                                ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
                         border: Border.all(
                           color: isVerified
                               ? const Color(0xFF2EBD59)
-                              : const Color(0xFFFFB300).withOpacity(0.4),
-                          width: 1.5,
+                              : const Color(0xFFF86700).withOpacity(0.4),
+                          width: 2,
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -719,7 +773,7 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                         style: TextStyle(
                           color: isVerified
                               ? Colors.white
-                              : const Color(0xFFFF8F00),
+                              : const Color(0xFFF86700),
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
@@ -733,66 +787,101 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                     flex: 6,
                     child: SizedBox(
                       height: 40,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (isVerified) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Tagihan ini sudah lunas terverifikasi'),
-                                backgroundColor: Color(0xFF2EBD59),
-                              ),
-                            );
-                            return;
-                          }
-
-                          if (!canVerify) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Pelanggan belum mengunggah bukti pembayaran',
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            10,
+                          ), // Matches the button's shape
+                          gradient: isVerified
+                              ? const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFF90FABC),
+                                    Color(0xFF00D270),
+                                  ],
+                                )
+                              : canVerify
+                              ? const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFF5A8FD4),
+                                    Color(0xFF036BA1),
+                                  ],
+                                )
+                              : const LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xFF99F800),
+                                    Color(0xFF8DC900),
+                                  ],
                                 ),
-                                backgroundColor: Colors.orange,
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (isVerified) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Tagihan ini sudah lunas terverifikasi',
+                                  ),
+                                  backgroundColor: Color(
+                                    0xFF2EBD59,
+                                  ), // Snackbar color untouched
+                                ),
+                              );
+                              return;
+                            }
+
+                            if (!canVerify) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Pelanggan belum mengunggah bukti pembayaran',
+                                  ),
+                                  backgroundColor:
+                                      Colors.orange, // Snackbar color untouched
+                                ),
+                              );
+                              return;
+                            }
+
+                            // Open payment verification screen
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VerifikasiTagihanView(
+                                  bill: item,
+                                  token: _session!.token,
+                                ),
                               ),
                             );
-                            return;
-                          }
 
-                          // Open payment verification screen
-                          final result = await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VerifikasiTagihanView(
-                                bill: item,
-                                token: _session!.token,
-                              ),
+                            if (result == true) {
+                              _refreshData();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                          );
-
-                          if (result == true) {
-                            _refreshData();
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isVerified
-                              ? const Color(0xFF2EBD59)
-                              : canVerify
-                                  ? const Color(0xFF0B4B85)
-                                  : Colors.grey,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            elevation: 0,
                           ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          isVerified
-                              ? 'Tagihan Lunas'
-                              : canVerify
-                                  ? 'Verifikasi'
-                                  : 'Menunggu Bukti',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
+                          child: Text(
+                            isVerified
+                                ? 'Tagihan Lunas'
+                                : canVerify
+                                ? 'Verifikasi'
+                                : 'Menunggu Bukti',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
                       ),
@@ -818,10 +907,7 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF729AC4),
-              Color(0xFF031B46),
-            ],
+            colors: [Color(0xFF729AC4), Color(0xFF031B46)],
           ),
         ),
         child: SafeArea(
@@ -830,29 +916,15 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
-                        InkWell(
-                          onTap: () => Navigator.pop(context),
-                          borderRadius: BorderRadius.circular(12),
-                          child: Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF729AC4),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back,
-                              color: Colors.white,
-                              size: 24,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 16),
                         const Text(
                           'Kelola Tagihan',
                           style: TextStyle(
@@ -892,22 +964,22 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                           ),
                         )
                       : _errorMessage != null
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: Text(
-                                  _errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF031B46),
-                                    fontSize: 16,
-                                  ),
-                                ),
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              _errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF031B46),
+                                fontSize: 16,
                               ),
-                            )
-                          : _billsList.isEmpty
-                              ? _buildEmptyState()
-                              : _buildBillsList(),
+                            ),
+                          ),
+                        )
+                      : _billsList.isEmpty
+                      ? _buildEmptyState()
+                      : _buildBillsList(),
                 ),
               ),
             ],
@@ -918,15 +990,10 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
         onPressed: () => _showBillDialog(),
         backgroundColor: const Color(0xFF0B4B85),
         elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 36,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        child: const Icon(Icons.add, color: Colors.white, size: 36),
       ),
+      bottomNavigationBar: CustomBottomNavBar(role: 'admin', currentIndex: 3),
     );
   }
 }

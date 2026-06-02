@@ -1237,7 +1237,7 @@ class _DashboardViewState extends State<DashboardView> {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFC2D4E6).withOpacity(0.4),
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: const Color(0xFF5A8FD4).withOpacity(0.5),
@@ -1282,9 +1282,18 @@ class _DashboardViewState extends State<DashboardView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isVerified
-                  ? const Color(0xFF2EBD59)
-                  : const Color(0xFFFF8F00),
+              gradient: LinearGradient(
+                          colors: isVerified
+                              ? [
+                                Color(0xFF00D270), 
+                                Color(0xFF0D8C42)]
+                              : [
+                                Color(0xFFF86700),
+                                Color(0xFFA18000),
+                                ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
