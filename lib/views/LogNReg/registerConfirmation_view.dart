@@ -308,7 +308,7 @@ class _RegisterConfirmViewState extends State<RegisterConfirmView> {
         fontSize: 14,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Colors.transparent,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,

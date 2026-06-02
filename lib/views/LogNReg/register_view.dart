@@ -205,7 +205,7 @@ class _RegisterViewState extends State<RegisterView> {
         fontSize: 14,
       ),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: Colors.transparent,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 14,
