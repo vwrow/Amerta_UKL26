@@ -1,0 +1,56 @@
+name: amarta_ukl
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.2.2
+  http_parser: ^4.1.2
+  shared_preferences: ^2.5.3
+  image_picker: ^1.1.2
+  file_picker: ^8.1.7
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/Vector.png
+    - assets/Vector1.png
+    - assets/Admin.png
+    - assets/Member.png
+    - assets/Rumah-layanan.png
+    - assets/Ruko-layanan.png
+    - assets/banyu.png
+    - assets/ombak.png
+    - assets/ombak1.png
+    - assets/navBar_icons/home.png
+    - assets/navBar_icons/home_outline.png
+    - assets/navBar_icons/kPelanggan.png
+    - assets/navBar_icons/kPelanggan_outline.png
+    - assets/navBar_icons/kLayanan.png
+    - assets/navBar_icons/kLayanan_outline.png
+    - assets/navBar_icons/profile.png
+    - assets/navBar_icons/profile_outline.png
+    - assets/navBar_icons/tagihan.png
+    - assets/navBar_icons/tagihan_outline.png
+    - assets/additional_icons/Bell.png
+    - assets/additional_icons/edit.png
+    - assets/additional_icons/delete.png
+    - assets/additional_icons/belumBayar.png
+    - assets/additional_icons/belumDibayar.png
+    - assets/additional_icons/fileDikirim.png
+    - assets/additional_icons/jLayanan.png
+    - assets/additional_icons/kTagihan.png
+    - assets/additional_icons/sudahLunas.png
+    - assets/additional_icons/tertunda.png
+    - assets/additional_icons/totalPelanggan.png
