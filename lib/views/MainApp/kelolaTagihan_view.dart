@@ -24,11 +24,21 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
 
   final BillService _billService = BillService();
   final PelangganService _pelangganService = PelangganService();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  // Filter: 'semua', 'verifikasi', 'lunas', 'menunggu'
+  String _statusFilter = 'semua';
 
   @override
   void initState() {
     super.initState();
     _loadSessionAndData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSessionAndData() async {
@@ -86,6 +96,42 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
         _errorMessage = null;
       }
     });
+  }
+
+  List<BillModel> get _filteredBillsList {
+    List<BillModel> list = _billsList;
+
+    // Apply status filter
+    if (_statusFilter == 'verifikasi') {
+      list = list.where((item) {
+        final hasProof = item.payment != null &&
+            item.payment!.paymentProof.trim().isNotEmpty;
+        return hasProof && !item.verifiedPayment;
+      }).toList();
+    } else if (_statusFilter == 'lunas') {
+      list = list.where((item) => item.verifiedPayment).toList();
+    } else if (_statusFilter == 'menunggu') {
+      list = list.where((item) {
+        final hasProof = item.payment != null &&
+            item.payment!.paymentProof.trim().isNotEmpty;
+        return !hasProof && !item.verifiedPayment;
+      }).toList();
+    }
+
+    // Apply search query
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      list = list.where((item) {
+        final customerName = item.customer?.name.toLowerCase() ?? '';
+        final serviceName = item.service?.name.toLowerCase() ?? '';
+        final measurementNumber = item.measurementNumber.toLowerCase();
+        return customerName.contains(query) ||
+            serviceName.contains(query) ||
+            measurementNumber.contains(query);
+      }).toList();
+    }
+
+    return list;
   }
 
   String _getFriendlyTime(String createdAtStr) {
@@ -638,13 +684,54 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
     );
   }
 
+  // ─── Filter Chip ─────────────────────────────────────────────────
+  Widget _buildFilterChip(String label, String value) {
+    final isSelected = _statusFilter == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _statusFilter = value;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? const LinearGradient(
+                  colors: [Color(0xFF5A8FD4), Color(0xFF033A82)],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                )
+              : null,
+          color: isSelected ? null : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? Colors.transparent
+                : const Color(0xFF035191).withOpacity(0.3),
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: isSelected ? Colors.white : const Color(0xFF035191),
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
   // ─── Build Bills List ────────────────────────────────────────────
   Widget _buildBillsList() {
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 80),
-      itemCount: _billsList.length,
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 80),
+      itemCount: _filteredBillsList.length,
       itemBuilder: (context, index) {
-        final item = _billsList[index];
+        final item = _filteredBillsList[index];
         final customerName = item.customer?.name ?? 'Sonthony Mackie';
         final serviceName = item.service?.name ?? 'Rumah B';
         final friendlyTime = _getFriendlyTime(item.createdAt);
@@ -752,18 +839,28 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: isVerified
-                              ? [Color(0xFF00D270), Color(0xFF0D8C42)]
-                              : [
-                                  Color.fromARGB(10, 153, 248, 0),
-                                  Color.fromARGB(10, 141, 201, 0),
+                              ? const [
+                                  Color.fromARGB(10, 0, 210, 112),
+                                  Color.fromARGB(10, 13, 140, 66),
+                                ]
+                              : canVerify
+                              ? const [
+                                  Color.fromARGB(10, 90, 143, 212),
+                                  Color.fromARGB(10, 3, 106, 161),
+                                ]
+                              : const [
+                                  Color.fromARGB(10, 168, 192, 189),
+                                  Color.fromARGB(10, 111, 114, 128),
                                 ],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ),
                         border: Border.all(
                           color: isVerified
-                              ? const Color(0xFF2EBD59)
-                              : const Color(0xFFF86700).withOpacity(0.4),
+                              ? const Color.fromARGB(255, 0, 210, 112).withOpacity(0.4)
+                              : canVerify
+                              ? const Color.fromARGB(255, 90, 143, 212).withOpacity(0.4)
+                              : const Color.fromARGB(255, 168, 192, 189).withOpacity(0.4),
                           width: 2,
                         ),
                         borderRadius: BorderRadius.circular(10),
@@ -772,8 +869,10 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                         priceFormatted,
                         style: TextStyle(
                           color: isVerified
-                              ? Colors.white
-                              : const Color(0xFFF86700),
+                              ? const Color(0xFF0D8C42)
+                              : canVerify
+                              ? const Color(0xFF036BA1)
+                              : const Color(0xFF6F7280),
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
@@ -797,8 +896,8 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    Color(0xFF90FABC),
                                     Color(0xFF00D270),
+                                    Color(0xFF0D8C42),
                                   ],
                                 )
                               : canVerify
@@ -814,8 +913,8 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    Color(0xFF99F800),
-                                    Color(0xFF8DC900),
+                                    Color(0xFFA8C0BD),
+                                    Color(0xFF6F7280),
                                   ],
                                 ),
                         ),
@@ -977,9 +1076,85 @@ class _KelolaTagihanViewState extends State<KelolaTagihanView> {
                             ),
                           ),
                         )
-                      : _billsList.isEmpty
-                      ? _buildEmptyState()
-                      : _buildBillsList(),
+                      : Column(
+                          children: [
+                            // Search Bar
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _searchQuery = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Cari Tagihan',
+                                  hintStyle: const TextStyle(
+                                    color: Color(0xFF035191),
+                                    fontSize: 14,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.search,
+                                    color: Color(0xFF035191),
+                                  ),
+                                  filled: true,
+                                  fillColor: const Color(0xFFC2D4E6).withOpacity(0.4),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(
+                                      color: const Color(0xFF035191).withOpacity(0.3),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF033A82),
+                                      width: 2,
+                                    ),
+                                  ),
+                                ),
+                                style: const TextStyle(
+                                  color: Color(0xFF035191),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            // Filter Chips
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 12, 20, 4),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    _buildFilterChip('Semua', 'semua'),
+                                    const SizedBox(width: 8),
+                                    _buildFilterChip('Perlu Verifikasi', 'verifikasi'),
+                                    const SizedBox(width: 8),
+                                    _buildFilterChip('Sudah Lunas', 'lunas'),
+                                    const SizedBox(width: 8),
+                                    _buildFilterChip('Menunggu Bukti', 'menunggu'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // List
+                            Expanded(
+                              child: _filteredBillsList.isEmpty
+                                  ? _buildEmptyState()
+                                  : _buildBillsList(),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ],

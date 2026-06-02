@@ -167,11 +167,11 @@ class _TagihanViewState extends State<TagihanView> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF035191).withOpacity(0.12),
-          width: 1.5,
+        color: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: const Color(0xFF035191).withOpacity(0.3),
+              width: 2,
         ),
         boxShadow: [
           BoxShadow(

@@ -28,8 +28,18 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
 
   String _getMonthName(int monthNum) {
     const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
     ];
     if (monthNum >= 1 && monthNum <= 12) {
       return months[monthNum - 1];
@@ -49,7 +59,8 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
     final customerAddress = customer?.address ?? 'Jl. Danau Poso 1 G2E16';
 
     // Amount formatting
-    final formattedPrice = 'Rp ${_currentBill.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+    final formattedPrice =
+        'Rp ${_currentBill.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
     // Verification states
     final isVerified = _currentBill.verifiedPayment;
@@ -57,11 +68,11 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
 
     String statusText = 'Belum bayar';
     Color statusColor = const Color(0xFF8B1A1A); // Red/brown
-    
- 
+
     bool isDenied = false;
     if (_currentBill.payment != null && !isVerified) {
-      if (_currentBill.payment!.paymentProof == 'rejected' || _currentBill.payment!.totalAmount == 99) {
+      if (_currentBill.payment!.paymentProof == 'rejected' ||
+          _currentBill.payment!.totalAmount == 99) {
         isDenied = true;
       }
     }
@@ -85,10 +96,7 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF729AC4),
-              Color(0xFF031B46),
-            ],
+            colors: [Color(0xFF729AC4), Color(0xFF031B46)],
           ),
         ),
         child: SafeArea(
@@ -97,7 +105,10 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -159,56 +170,45 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                       children: [
                         // Card 1: Customer Info
                         Container(
-                          padding: const EdgeInsets.all(14),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.12),
+                              color: const Color(0xFF035191).withOpacity(0.3),
                               width: 1.5,
                             ),
                           ),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Circular avatar (clean icon per user instructions)
-                              Container(
-                                width: 52,
-                                height: 52,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFE8EEF5),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.person,
-                                  color: Color(0xFF729AC4),
-                                  size: 32,
+                              const Text(
+                                'Data Pelanggan',
+                                style: TextStyle(
+                                  color: Color(0xFF033A82),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      customerName,
-                                      style: const TextStyle(
-                                        color: Color(0xFF033A82),
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '$customerNum  •  $serviceName  •  $customerAddress',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: const TextStyle(
-                                        color: Color(0xFF729AC4),
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              const SizedBox(height: 14),
+                              _buildDetailRow('Nama', customerName),
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
+                              _buildDetailRow('Layanan', serviceName),
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
+                              _buildDetailRow('No Pelanggan', customerNum),
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
+                              _buildDetailRowMultiline(
+                                'Alamat',
+                                customerAddress,
                               ),
                             ],
                           ),
@@ -219,10 +219,10 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.12),
+                              color: const Color(0xFF035191).withOpacity(0.3),
                               width: 1.5,
                             ),
                           ),
@@ -230,7 +230,7 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Detail Pembayaran',
+                                'Detail Pembayaran Tagihan',
                                 style: TextStyle(
                                   color: Color(0xFF033A82),
                                   fontSize: 16,
@@ -238,16 +238,46 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                                 ),
                               ),
                               const SizedBox(height: 14),
-                              _buildDetailRow('Periode', '${_getMonthName(_currentBill.month)} ${_currentBill.year}'),
-                              const Divider(height: 20, color: Color(0xFFE8EEF5)),
-                              _buildDetailRow('No meteran', _currentBill.measurementNumber),
-                              const Divider(height: 20, color: Color(0xFFE8EEF5)),
-                              _buildDetailRow('Total Penggunaan', '${_currentBill.usageValue} m³'),
-                              const Divider(height: 20, color: Color(0xFFE8EEF5)),
-                              
-                              // Status Row
+                              _buildDetailRow(
+                                'Periode',
+                                '${_getMonthName(_currentBill.month)} ${_currentBill.year}',
+                              ),
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
+                              _buildDetailRow(
+                                'No meteran',
+                                _currentBill.measurementNumber,
+                              ),
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
+                              _buildDetailRow(
+                                'Total Penggunaan',
+                                '${_currentBill.usageValue} m³',
+                              ),
+                              if (hasReceipt &&
+                                  _currentBill.payment != null) ...[
+                                const Divider(
+                                  height: 20,
+                                  color: Color(0xFFE8EEF5),
+                                ),
+                                _buildDetailRow(
+                                  'Tanggal Pembayaran',
+                                  _formatPaymentDate(
+                                    _currentBill.payment!.paymentDate,
+                                  ),
+                                ),
+                              ],
+                              const Divider(
+                                height: 20,
+                                color: Color(0xFFE8EEF5),
+                              ),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Status',
@@ -270,13 +300,17 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
 
                               // Total Row with Solid Blue Box
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
                                 decoration: BoxDecoration(
                                   color: const Color(0xFF0B4B85),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text(
                                       'Total',
@@ -303,91 +337,161 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                         const SizedBox(height: 16),
 
                         // Card 3: Bukti Pembayaran / Receipt Box
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.12),
-                              width: 1.5,
+                        if (statusText != 'Lunas')
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFF035191).withOpacity(0.3),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Bukti Pembayaran',
+                                  style: TextStyle(
+                                    color: Color(0xFF033A82),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(height: 14),
+
+                                // Conditional Bukti rendering
+                                if (statusText == 'Belum bayar')
+                                  // Dashed upload area matching mockup 1
+                                  Container(
+                                    width: double.infinity,
+                                    height: 220,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF9F9F9),
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: const Color(
+                                          0xFFFFB300,
+                                        ).withOpacity(0.5),
+                                        width: 2,
+                                        style: BorderStyle
+                                            .solid, // Uses standard border
+                                      ),
+                                    ),
+                                    child: const Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.upload_rounded,
+                                          color: Color(0xFFFF8F00),
+                                          size: 64,
+                                        ),
+                                        SizedBox(height: 16),
+                                        Text(
+                                          'Bukti File Belum Diunggah',
+                                          style: TextStyle(
+                                            color: Color(0xFFFF8F00),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        SizedBox(height: 6),
+                                        Text(
+                                          'JPG atau PNG max 10mb',
+                                          style: TextStyle(
+                                            color: Color(0xFFFFB300),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                else ...[
+                                  PaymentProofPreview(
+                                    paymentProof:
+                                        _currentBill.payment!.paymentProof,
+                                    token: widget.token,
+                                    height: 220,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  const SizedBox(height: 16),
+                                ],
+                              ],
                             ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Bukti Pembayaran',
+
+                        if (statusText == 'Lunas') ...[
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                gradient: const LinearGradient(
+                                  colors: [Color(0xFF5A8FD4), Color(0xFF033A82)],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // TODO: Implement Cetak PDF
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Cetak PDF',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                // TODO: Implement Bagikan
+                              },
+                              icon: Image.asset(
+                                'assets/additional_icons/share.png',
+                                width: 24,
+                                height: 24,
+                                color: const Color(0xFF033A82),
+                              ),
+                              label: const Text(
+                                'Bagikan',
                                 style: TextStyle(
                                   color: Color(0xFF033A82),
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 14),
-
-                              // Conditional Bukti rendering
-                              if (statusText == 'Belum bayar')
-                                // Dashed upload area matching mockup 1
-                                Container(
-                                  width: double.infinity,
-                                  height: 220,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF9F9F9),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: const Color(0xFFFFB300).withOpacity(0.5),
-                                      width: 2,
-                                      style: BorderStyle.solid, // Uses standard border
-                                    ),
-                                  ),
-                                  child: const Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.upload_rounded,
-                                        color: Color(0xFFFF8F00),
-                                        size: 64,
-                                      ),
-                                      SizedBox(height: 16),
-                                      Text(
-                                        'Bukti File Belum Diunggah',
-                                        style: TextStyle(
-                                          color: Color(0xFFFF8F00),
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(height: 6),
-                                      Text(
-                                        'JPG atau PNG max 10mb',
-                                        style: TextStyle(
-                                          color: Color(0xFFFFB300),
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              else ...[
-                                PaymentProofPreview(
-                                  paymentProof: _currentBill.payment!.paymentProof,
-                                  token: widget.token,
-                                  height: 220,
-                                  fit: BoxFit.cover,
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                  color: Color(0xFF035191),
+                                  width: 1.5,
                                 ),
-                                const SizedBox(height: 16),
-
-                                // Outline state badge below receipt
-                                if (statusText == 'Menunggu verifikasi')
-                                  _buildOutlineBadge('Menunggu Verifikasi', const Color(0xFFFF9800))
-                                else if (statusText == 'Lunas')
-                                  _buildOutlineBadge('Berhasil Verifikasi', const Color(0xFF2EBD59))
-                              ]
-                            ],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
+
                         const SizedBox(height: 24),
 
                         // Bottom Button for Belum bayar
@@ -431,10 +535,7 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: Color(0xFF729AC4),
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: Color(0xFF729AC4), fontSize: 14),
         ),
         Text(
           value,
@@ -448,35 +549,60 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
     );
   }
 
-  Widget _buildOutlineBadge(String text, Color color) {
-    return Container(
-      width: double.infinity,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.04),
-        border: Border.all(color: color.withOpacity(0.7), width: 1.5),
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.bold,
-          fontSize: 15,
+  Widget _buildDetailRowMultiline(String label, String value) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: Color(0xFF729AC4), fontSize: 14),
         ),
-      ),
+        const SizedBox(width: 32),
+        Flexible(
+          child: Text(
+            value,
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              color: Color(0xFF033A82),
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ],
     );
+  }
+
+  String _formatPaymentDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      const months = [
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember',
+      ];
+      return '${date.day} ${months[date.month - 1]} ${date.year}';
+    } catch (e) {
+      return dateStr;
+    }
   }
 
   Future<void> _navigateToPay() async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => BayarTagihanView(
-          bill: _currentBill,
-          token: widget.token,
-        ),
+        builder: (context) =>
+            BayarTagihanView(bill: _currentBill, token: widget.token),
       ),
     );
 

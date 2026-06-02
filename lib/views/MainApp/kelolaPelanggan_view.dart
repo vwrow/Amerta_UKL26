@@ -21,6 +21,8 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
   List<LayananModel> _layananList = [];
   bool _isLoading = true;
   String? _errorMessage;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   final PelangganService _pelangganService = PelangganService();
   final LayananService _layananService = LayananService();
@@ -29,6 +31,12 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
   void initState() {
     super.initState();
     _loadSessionAndData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSessionAndData() async {
@@ -107,6 +115,17 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
     return 'C-$candidate';
   }
 
+  List<PelangganModel> get _filteredPelangganList {
+    if (_searchQuery.isEmpty) return _pelangganList;
+    final query = _searchQuery.toLowerCase();
+    return _pelangganList.where((item) {
+      return item.name.toLowerCase().contains(query) ||
+          item.customerNumber.toLowerCase().contains(query) ||
+          item.phone.toLowerCase().contains(query) ||
+          item.address.toLowerCase().contains(query);
+    }).toList();
+  }
+
   // ─── Add / Edit Dialog ───────────────────────────────────────────
   void _showPelangganDialog({PelangganModel? existing}) {
     final isEdit = existing != null;
@@ -137,7 +156,10 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
-              insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 24,
+              ),
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(20.0),
@@ -200,8 +222,8 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                             hint: 'Masukkan password',
                             obscureText: true,
                             validator: (v) => (v == null || v.trim().isEmpty)
-                              ? 'Password tidak boleh kosong'
-                              : null,
+                                ? 'Password tidak boleh kosong'
+                                : null,
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -265,24 +287,39 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                           value: selectedServiceId,
                           hint: const Text(
                             'Pilih layanan tersedia',
-                            style: TextStyle(color: Color(0xFF729AC4), fontSize: 14),
+                            style: TextStyle(
+                              color: Color(0xFF729AC4),
+                              fontSize: 14,
+                            ),
                           ),
                           dropdownColor: Colors.white,
                           decoration: InputDecoration(
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF729AC4),
+                                width: 1,
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF729AC4),
+                                width: 1,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
-                              borderSide: const BorderSide(color: Color(0xFF033A82), width: 2),
+                              borderSide: const BorderSide(
+                                color: Color(0xFF033A82),
+                                width: 2,
+                              ),
                             ),
                           ),
                           items: _layananList.map((layanan) {
@@ -290,7 +327,10 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                               value: layanan.id,
                               child: Text(
                                 '${layanan.name} (Rp ${layanan.price}/m³)',
-                                style: const TextStyle(color: Color(0xFF031B46), fontSize: 14),
+                                style: const TextStyle(
+                                  color: Color(0xFF031B46),
+                                  fontSize: 14,
+                                ),
                               ),
                             );
                           }).toList(),
@@ -301,7 +341,8 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                                     selectedServiceId = val;
                                   });
                                 },
-                          validator: (v) => v == null ? 'Silakan pilih layanan' : null,
+                          validator: (v) =>
+                              v == null ? 'Silakan pilih layanan' : null,
                         ),
                         const SizedBox(height: 32),
 
@@ -311,10 +352,7 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                           height: 52,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF4A90E2),
-                                Color(0xFF0B4B85),
-                              ],
+                              colors: [Color(0xFF4A90E2), Color(0xFF0B4B85)],
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                             ),
@@ -324,33 +362,40 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                             onPressed: isSaving
                                 ? null
                                 : () async {
-                                    if (!formKey.currentState!.validate()) return;
+                                    if (!formKey.currentState!.validate())
+                                      return;
                                     setDialogState(() => isSaving = true);
 
                                     final token = _session!.token;
                                     Map<String, dynamic> result;
 
                                     if (isEdit) {
-                                      result = await _pelangganService.updatePelanggan(
-                                        token: token,
-                                        id: existing.id,
-                                        customerNumber: customerNumberCtrl.text.trim(),
-                                        address: addressCtrl.text.trim(),
-                                        serviceId: selectedServiceId!,
-                                        name: nameCtrl.text.trim(),
-                                        phone: phoneCtrl.text.trim(),
-                                      );
+                                      result = await _pelangganService
+                                          .updatePelanggan(
+                                            token: token,
+                                            id: existing.id,
+                                            customerNumber: customerNumberCtrl
+                                                .text
+                                                .trim(),
+                                            address: addressCtrl.text.trim(),
+                                            serviceId: selectedServiceId!,
+                                            name: nameCtrl.text.trim(),
+                                            phone: phoneCtrl.text.trim(),
+                                          );
                                     } else {
-                                      result = await _pelangganService.createPelanggan(
-                                        token: token,
-                                        username: usernameCtrl.text.trim(),
-                                        password: passwordCtrl.text.trim(),
-                                        customerNumber: customerNumberCtrl.text.trim(),
-                                        address: addressCtrl.text.trim(),
-                                        serviceId: selectedServiceId!,
-                                        name: nameCtrl.text.trim(),
-                                        phone: phoneCtrl.text.trim(),
-                                      );
+                                      result = await _pelangganService
+                                          .createPelanggan(
+                                            token: token,
+                                            username: usernameCtrl.text.trim(),
+                                            password: passwordCtrl.text.trim(),
+                                            customerNumber: customerNumberCtrl
+                                                .text
+                                                .trim(),
+                                            address: addressCtrl.text.trim(),
+                                            serviceId: selectedServiceId!,
+                                            name: nameCtrl.text.trim(),
+                                            phone: phoneCtrl.text.trim(),
+                                          );
                                     }
 
                                     if (!ctx.mounted) return;
@@ -359,7 +404,9 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                                       Navigator.pop(ctx);
                                       _refreshData();
                                       if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
                                             content: Text(
                                               result['message'] ??
@@ -367,17 +414,22 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                                                       ? 'Pelanggan diperbarui'
                                                       : 'Pelanggan ditambahkan'),
                                             ),
-                                            backgroundColor: const Color(0xFF2EBD59),
+                                            backgroundColor: const Color(
+                                              0xFF2EBD59,
+                                            ),
                                           ),
                                         );
                                       }
                                     } else {
                                       setDialogState(() => isSaving = false);
                                       if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              result['message'] ?? 'Terjadi kesalahan',
+                                              result['message'] ??
+                                                  'Terjadi kesalahan',
                                             ),
                                             backgroundColor: Colors.red,
                                           ),
@@ -402,7 +454,9 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                                     ),
                                   )
                                 : Text(
-                                    isEdit ? 'Simpan Perubahan' : 'Tambah Pelanggan',
+                                    isEdit
+                                        ? 'Simpan Perubahan'
+                                        : 'Tambah Pelanggan',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
@@ -455,9 +509,7 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
           maxLines: obscureText ? 1 : maxLines,
           validator: validator,
           style: TextStyle(
-            color: readOnly
-                ? const Color(0xFF729AC4)
-                : const Color(0xFF031B46),
+            color: readOnly ? const Color(0xFF729AC4) : const Color(0xFF031B46),
             fontSize: 14,
           ),
           decoration: InputDecoration(
@@ -465,7 +517,10 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
             hintStyle: const TextStyle(color: Color(0xFF729AC4), fontSize: 14),
             filled: true,
             fillColor: readOnly ? const Color(0xFFE8EEF5) : Colors.white,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
@@ -490,7 +545,7 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
             caption,
             style: const TextStyle(color: Color(0xFF729AC4), fontSize: 11),
           ),
-        ]
+        ],
       ],
     );
   }
@@ -519,10 +574,7 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
               ),
               content: Text(
                 'Apakah Anda yakin ingin menghapus pelanggan "${item.name}"?',
-                style: const TextStyle(
-                  color: Color(0xFF031B46),
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Color(0xFF031B46), fontSize: 14),
               ),
               actions: [
                 TextButton(
@@ -538,10 +590,11 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                       : () async {
                           setDialogState(() => isDeleting = true);
 
-                          final result = await _pelangganService.deletePelanggan(
-                            token: _session!.token,
-                            id: item.id,
-                          );
+                          final result = await _pelangganService
+                              .deletePelanggan(
+                                token: _session!.token,
+                                id: item.id,
+                              );
 
                           if (!ctx.mounted) return;
 
@@ -598,8 +651,7 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
     );
   }
 
-
- Widget _buildEmptyState() {
+  Widget _buildEmptyState() {
     return Center(
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(28.0),
@@ -651,10 +703,7 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF729AC4),
-              Color(0xFF031B46),
-            ],
+            colors: [Color(0xFF729AC4), Color(0xFF031B46)],
           ),
         ),
         child: SafeArea(
@@ -663,7 +712,10 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
             children: [
               // Header
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -703,33 +755,93 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
                           ),
                         )
                       : _errorMessage != null
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: Text(
-                                  _errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF031B46),
-                                    fontSize: 16,
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              _errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF031B46),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _searchQuery = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Cari Pelanggan',
+                                  hintStyle: const TextStyle(
+                                    color: Color(0xFF035191),
+                                    fontSize: 14,
+                                  ),
+                                  prefixIcon: const Icon(
+                                    Icons.search,
+                                    color: Color(0xFF035191),
+                                  ),
+                                  filled: true,
+                                  fillColor: const Color(0xFFC2D4E6).withOpacity(0.4),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(
+                                      color: const Color(0xFF035191).withOpacity(0.3),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF033A82),
+                                      width: 2,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          : _pelangganList.isEmpty
-                              ? _buildEmptyState()
-                              : ListView.builder(
-                                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 80),
-                                  itemCount: _pelangganList.length,
-                                  itemBuilder: (context, index) {
-                                    final item = _pelangganList[index];
-                                    return PelangganCard(
-                                      pelanggan: item,
-                                      onEdit: () => _showPelangganDialog(existing: item),
-                                      onDelete: () => _showDeleteDialog(item),
-                                    );
-                                  },
+                                style: const TextStyle(
+                                  color: Color(0xFF035191),
+                                  fontSize: 14,
                                 ),
+                              ),
+                            ),
+                            Expanded(
+                              child: _filteredPelangganList.isEmpty
+                                  ? _buildEmptyState()
+                                  : ListView.builder(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        20, 16, 20, 80,
+                                      ),
+                                      itemCount: _filteredPelangganList.length,
+                                      itemBuilder: (context, index) {
+                                        final item = _filteredPelangganList[index];
+                                        return PelangganCard(
+                                          pelanggan: item,
+                                          onEdit: () => _showPelangganDialog(
+                                            existing: item,
+                                          ),
+                                          onDelete: () => _showDeleteDialog(item),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ],
@@ -740,19 +852,10 @@ class _KelolaPelangganViewState extends State<KelolaPelangganView> {
         onPressed: () => _showPelangganDialog(),
         backgroundColor: const Color(0xFF0B4B85),
         elevation: 6,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-          size: 36,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        child: const Icon(Icons.add, color: Colors.white, size: 36),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        role: role,
-        currentIndex: 1,
-      ),
+      bottomNavigationBar: CustomBottomNavBar(role: role, currentIndex: 1),
     );
   }
 }

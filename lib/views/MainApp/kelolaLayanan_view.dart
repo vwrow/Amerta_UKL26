@@ -20,11 +20,19 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
   String? _errorMessage;
 
   final LayananService _layananService = LayananService();
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _loadSessionAndData();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadSessionAndData() async {
@@ -76,8 +84,16 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
     });
   }
 
-  bool get _hasValidSession =>
-      _session != null && _session!.token.isNotEmpty;
+  bool get _hasValidSession => _session != null && _session!.token.isNotEmpty;
+
+  List<LayananModel> get _filteredLayananList {
+    if (_searchQuery.isEmpty) return _layananList;
+    final query = _searchQuery.toLowerCase();
+    return _layananList.where((item) {
+      return item.name.toLowerCase().contains(query) ||
+          item.price.toString().contains(query);
+    }).toList();
+  }
 
   // ─── Add / Edit Dialog ───────────────────────────────────────────
   void _showLayananDialog({LayananModel? existing}) {
@@ -94,12 +110,15 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
     final isEdit = existing != null;
     final formKey = GlobalKey<FormState>();
     final nameCtrl = TextEditingController(text: existing?.name ?? '');
-    final minCtrl =
-        TextEditingController(text: existing?.minUsage.toString() ?? '');
-    final maxCtrl =
-        TextEditingController(text: existing?.maxUsage.toString() ?? '');
-    final priceCtrl =
-        TextEditingController(text: existing?.price.toString() ?? '');
+    final minCtrl = TextEditingController(
+      text: existing?.minUsage.toString() ?? '',
+    );
+    final maxCtrl = TextEditingController(
+      text: existing?.maxUsage.toString() ?? '',
+    );
+    final priceCtrl = TextEditingController(
+      text: existing?.price.toString() ?? '',
+    );
     bool isSaving = false;
 
     showDialog(
@@ -198,10 +217,7 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                           height: 48,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF729AC4),
-                                Color(0xFF033A82),
-                              ],
+                              colors: [Color(0xFF729AC4), Color(0xFF033A82)],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
                             ),
@@ -218,14 +234,21 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                             onPressed: isSaving
                                 ? null
                                 : () async {
-                                    if (!formKey.currentState!.validate()) return;
+                                    if (!formKey.currentState!.validate())
+                                      return;
 
-                                    final min = int.tryParse(minCtrl.text.trim());
-                                    final max = int.tryParse(maxCtrl.text.trim());
+                                    final min = int.tryParse(
+                                      minCtrl.text.trim(),
+                                    );
+                                    final max = int.tryParse(
+                                      maxCtrl.text.trim(),
+                                    );
                                     if (min == null || max == null) return;
 
                                     if (max < min) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
                                         const SnackBar(
                                           content: Text(
                                             'Max penggunaan harus lebih besar atau sama dengan min',
@@ -242,22 +265,24 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                                     Map<String, dynamic> result;
 
                                     if (isEdit) {
-                                      result = await _layananService.updateLayanan(
-                                        token: token,
-                                        id: existing.id,
-                                        name: nameCtrl.text.trim(),
-                                        minUsage: minCtrl.text.trim(),
-                                        maxUsage: maxCtrl.text.trim(),
-                                        price: priceCtrl.text.trim(),
-                                      );
+                                      result = await _layananService
+                                          .updateLayanan(
+                                            token: token,
+                                            id: existing.id,
+                                            name: nameCtrl.text.trim(),
+                                            minUsage: minCtrl.text.trim(),
+                                            maxUsage: maxCtrl.text.trim(),
+                                            price: priceCtrl.text.trim(),
+                                          );
                                     } else {
-                                      result = await _layananService.createLayanan(
-                                        token: token,
-                                        name: nameCtrl.text.trim(),
-                                        minUsage: minCtrl.text.trim(),
-                                        maxUsage: maxCtrl.text.trim(),
-                                        price: priceCtrl.text.trim(),
-                                      );
+                                      result = await _layananService
+                                          .createLayanan(
+                                            token: token,
+                                            name: nameCtrl.text.trim(),
+                                            minUsage: minCtrl.text.trim(),
+                                            maxUsage: maxCtrl.text.trim(),
+                                            price: priceCtrl.text.trim(),
+                                          );
                                     }
 
                                     if (!ctx.mounted) return;
@@ -266,7 +291,9 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                                       Navigator.pop(ctx);
                                       _refreshData();
                                       if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
                                             content: Text(
                                               result['message'] ??
@@ -274,17 +301,22 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                                                       ? 'Layanan diperbarui'
                                                       : 'Layanan ditambahkan'),
                                             ),
-                                            backgroundColor: const Color(0xFF2EBD59),
+                                            backgroundColor: const Color(
+                                              0xFF2EBD59,
+                                            ),
                                           ),
                                         );
                                       }
                                     } else {
                                       setDialogState(() => isSaving = false);
                                       if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              result['message'] ?? 'Terjadi kesalahan',
+                                              result['message'] ??
+                                                  'Terjadi kesalahan',
                                             ),
                                             backgroundColor: Colors.red,
                                           ),
@@ -365,41 +397,28 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14,
-            ),
+            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
             filled: true,
             fillColor: Colors.white,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Color(0xFF729AC4),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Color(0xFF729AC4),
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF729AC4), width: 1),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Color(0xFF033A82),
-                width: 2,
-              ),
+              borderSide: const BorderSide(color: Color(0xFF033A82), width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: const BorderSide(
-                color: Colors.red,
-                width: 1,
-              ),
+              borderSide: const BorderSide(color: Colors.red, width: 1),
             ),
           ),
         ),
@@ -441,10 +460,7 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
               ),
               content: Text(
                 'Apakah Anda yakin ingin menghapus layanan "${item.name}"?',
-                style: const TextStyle(
-                  color: Color(0xFF031B46),
-                  fontSize: 14,
-                ),
+                style: const TextStyle(color: Color(0xFF031B46), fontSize: 14),
               ),
               actions: [
                 TextButton(
@@ -572,10 +588,7 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFF729AC4),
-              Color(0xFF031B46),
-            ],
+            colors: [Color(0xFF729AC4), Color(0xFF031B46)],
           ),
         ),
         child: SafeArea(
@@ -584,8 +597,10 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
             children: [
               // Header
               Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -625,35 +640,104 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
                           ),
                         )
                       : _errorMessage != null
-                          ? Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(24),
-                                child: Text(
-                                  _errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Color(0xFF031B46),
-                                    fontSize: 16,
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              _errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF031B46),
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                              child: TextField(
+                                controller: _searchController,
+                                onChanged: (value) {
+                                  setState(() {
+                                    _searchQuery = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Cari Layanan',
+                                  hintStyle: const TextStyle(
+                                    color: Color(0xFF035191),
+                                    fontSize: 14,
+                                  ),
+                                  prefixIcon: Image.asset(
+                                    'assets/additional_icons/cari.png',
+                                    color: const Color(
+                                      0xFF035191,
+                                    ), 
+                                    width: 20, 
+                                    height: 20, 
+                                  ),
+                                  filled: true,
+                                  fillColor: Color(0xFFC2D4E6).withOpacity(0.4),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: BorderSide(
+                                      color: const Color(
+                                        0xFF035191,
+                                      ).withOpacity(0.3),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                    borderSide: const BorderSide(
+                                      color: Color(0xFF033A82),
+                                      width: 2,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                          : _layananList.isEmpty
-                              ? _buildEmptyState()
-                              : ListView.builder(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      20, 24, 20, 80),
-                                  itemCount: _layananList.length,
-                                  itemBuilder: (context, index) {
-                                    final item = _layananList[index];
-                                    return LayananCard(
-                                      layanan: item,
-                                      onEdit: () =>
-                                          _showLayananDialog(existing: item),
-                                      onDelete: () => _showDeleteDialog(item),
-                                    );
-                                  },
+                                style: const TextStyle(
+                                  color: Color(0xFF035191),
+                                  fontSize: 14,
                                 ),
+                              ),
+                            ),
+                            Expanded(
+                              child: _filteredLayananList.isEmpty
+                                  ? _buildEmptyState()
+                                  : ListView.builder(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        20,
+                                        16,
+                                        20,
+                                        80,
+                                      ),
+                                      itemCount: _filteredLayananList.length,
+                                      itemBuilder: (context, index) {
+                                        final item =
+                                            _filteredLayananList[index];
+                                        return LayananCard(
+                                          layanan: item,
+                                          onEdit: () => _showLayananDialog(
+                                            existing: item,
+                                          ),
+                                          onDelete: () =>
+                                              _showDeleteDialog(item),
+                                        );
+                                      },
+                                    ),
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ],
@@ -668,17 +752,10 @@ class _KelolaLayananViewState extends State<KelolaLayananView> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-                size: 36,
-              ),
+              child: const Icon(Icons.add, color: Colors.white, size: 36),
             )
           : null,
-      bottomNavigationBar: CustomBottomNavBar(
-        role: role,
-        currentIndex: 2,
-      ),
+      bottomNavigationBar: CustomBottomNavBar(role: role, currentIndex: 2),
     );
   }
 }

@@ -45,6 +45,10 @@ flutter:
     - assets/navBar_icons/profile_outline.png
     - assets/navBar_icons/tagihan.png
     - assets/navBar_icons/tagihan_outline.png
+    - assets/additional_icons/cari.png
+    - assets/additional_icons/filter67.png
+    - assets/additional_icons/share.png
+    - assets/additional_icons/pendapatan6.png
     - assets/additional_icons/Bell.png
     - assets/additional_icons/edit.png
     - assets/additional_icons/delete.png
