@@ -40,11 +40,22 @@ class UserService {
     required String password,
     required String name,
     required String phone,
+    String? address,
   }) async {
     final bool isAdmin = role.trim().toUpperCase() == 'ADMIN';
     final uri = Uri.parse(isAdmin ? '$adminURL/$id' : '$customerURL/$id');
 
     try {
+      final Map<String, dynamic> bodyData = {
+        'password': password,
+        'name': name,
+        'phone': phone,
+      };
+      
+      if (address != null) {
+        bodyData['address'] = address;
+      }
+
       final response = await http.patch(
         uri,
         headers: {
@@ -52,11 +63,7 @@ class UserService {
           'APP-KEY': appKey,
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'password': password,
-          'name': name,
-          'phone': phone,
-        }),
+        body: jsonEncode(bodyData),
       );
 
       if (response.body.isEmpty) {

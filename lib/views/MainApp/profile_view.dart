@@ -3,6 +3,8 @@ import '../../models/user_session.dart';
 import '../../services/user_session_service.dart';
 import '../../services/user_service.dart';
 import '../../widgets/navBar_widget.dart';
+import 'editProfil_view.dart';
+import 'gantiPassword_view.dart';
 
 class ProfileView extends StatefulWidget {
   const ProfileView({super.key});
@@ -12,35 +14,16 @@ class ProfileView extends StatefulWidget {
 }
 
 class _ProfileViewState extends State<ProfileView> {
-  // Tracks if the user is actively changing password
-  bool _isChangingPassword = false;
   UserSession? _session;
   bool _isLoading = true;
-  bool _isEditing = false;
-  bool _isSaving = false;
-  String _storedPassword = '';
+  String _address = '-';
   // The admin account's actual `id` from the API (distinct from `user_id`)
   String _accountId = '';
-
-  late TextEditingController _nameController;
-  late TextEditingController _phoneController;
-  late TextEditingController _passwordController;
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _phoneController = TextEditingController();
-    _passwordController = TextEditingController();
     _loadSession();
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 
   Future<void> _loadSession() async {
@@ -79,152 +62,14 @@ class _ProfileViewState extends State<ProfileView> {
       _accountId = session.userId;
     }
 
-    final storedPassword =
-        await UserSessionService().getStoredPassword(updatedSession.username);
+    final addressStr = apiData != null ? apiData['address']?.toString() : null;
 
     if (!mounted) return;
     setState(() {
       _session = updatedSession;
+      _address = addressStr ?? '-';
       _isLoading = false;
-      _nameController.text = updatedSession.name;
-      _phoneController.text = updatedSession.phone;
-      _storedPassword = storedPassword ?? '';
-      _passwordController.text = _storedPassword;
     });
-  }
-
-  void _toggleEdit() {
-    setState(() {
-      if (_isEditing && _isChangingPassword) {
-        // If exiting edit mode, reset password change flag
-        _isChangingPassword = false;
-      }
-      if (_isEditing && _session != null) {
-        _nameController.text = _session!.name;
-        _phoneController.text = _session!.phone;
-        _passwordController.text = _storedPassword;
-      }
-      _isEditing = !_isEditing;
-    });
-  }
-
-  Future<void> _saveProfile() async {
-    if (_session == null || _session!.token.isEmpty) return;
-
-    final name = _nameController.text.trim();
-    final phone = _phoneController.text.trim();
-    final password = _passwordController.text;
-    final id = _session!.userId.trim();
-
-    if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama lengkap wajib diisi')),
-      );
-      return;
-    }
-
-    if (_isChangingPassword && password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password wajib diisi')),
-      );
-      return;
-    }
-
-    if (id.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ID pengguna tidak ditemukan')),
-      );
-      return;
-    }
-
-    setState(() {
-      _isSaving = true;
-    });
-
-    final result = await UserService().updateProfile(
-      token: _session!.token,
-      role: _session!.role,
-      id: id,
-      password: _isChangingPassword ? password : _storedPassword,
-      name: name,
-      phone: phone,
-    );
-
-    if (!mounted) return;
-
-    setState(() {
-      _isSaving = false;
-    });
-
-    if (result['success'] == true) {
-      final data = result['data'];
-      final Map<String, dynamic>? profileData =
-          data is Map<String, dynamic> ? data : null;
-
-      final updatedSession = UserSession(
-        username: _session!.username,
-        name: profileData?['name']?.toString() ?? name,
-        userId: (profileData?['id'] ?? profileData?['user_id'])?.toString() ?? id,
-        phone: profileData?['phone']?.toString() ?? phone,
-        role: _session!.role,
-        createdAt:
-            profileData?['createdAt']?.toString() ?? _session!.createdAt,
-        token: _session!.token,
-      );
-
-      await UserSessionService().saveCurrentSession(updatedSession);
-      
-      if (_isChangingPassword) {
-        await UserSessionService().saveRegisteredAccount(
-          username: updatedSession.username,
-          password: password,
-          name: updatedSession.name,
-          userId: updatedSession.userId,
-          phone: updatedSession.phone,
-          role: updatedSession.role,
-          createdAt: updatedSession.createdAt,
-        );
-      }
-
-      if (!mounted) return;
-
-      setState(() {
-        _session = updatedSession;
-        _isEditing = false;
-        _storedPassword = _isChangingPassword ? password : _storedPassword;
-        _isChangingPassword = false;
-        _nameController.text = updatedSession.name;
-        _phoneController.text = updatedSession.phone;
-        _passwordController.text = _storedPassword;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result['message']?.toString() ?? 'Profil berhasil diperbarui',
-          ),
-          backgroundColor: const Color(0xFF2EBD59),
-        ),
-      );
-    } else {
-      final message = result['message'];
-      String errorText = 'Gagal memperbarui profil';
-      if (message is String && message.isNotEmpty) {
-        errorText = message;
-      } else if (message is Map) {
-        errorText = message.values
-            .expand((v) => v is List ? v : [v])
-            .map((e) => e.toString())
-            .join(' ');
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorText.trim()),
-          backgroundColor: const Color(0xFFB71C1C),
-        ),
-      );
-    }
   }
 
   String _formatDate(String dateStr) {
@@ -302,9 +147,6 @@ class _ProfileViewState extends State<ProfileView> {
                           Navigator.pop(ctx);
                           
                           if (result['success'] == true) {
-                            setState(() {
-                              _isChangingPassword = false;
-                            });
                             await UserSessionService().clearCurrentSession();
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
@@ -467,104 +309,75 @@ class _ProfileViewState extends State<ProfileView> {
                               padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
                               child: Column(
                                 children: [
-                                  if (!_isEditing)
-                                    _buildActionButton(
-                                      label: 'Edit Profil',
-                                      icon: Icons.person_outline,
-                                      iconColor: const Color(0xFF036BA1),
-                                      borderColor: const Color(0xFF035191).withOpacity(0.3),
-                                      textColor: const Color(0xFF036BA1),
-                                      onTap: _toggleEdit,
-                                    ),
-                                  if (!_isEditing) const SizedBox(height: 20),
+                                  _buildActionButton(
+                                    label: 'Edit Profil',
+                                    backgroundColor: Color(0xFFC2D4E6).withOpacity(0.4),
+                                    icon: Icons.person_outline,
+                                    iconColor: const Color(0xFF036BA1),
+                                    borderColor: const Color(0xFF035191).withOpacity(0.3),
+                                    textColor: const Color(0xFF036BA1),
+                                    onTap: () async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditProfilView(
+                                            session: _session!,
+                                            address: _address,
+                                          ),
+                                        ),
+                                      );
+                                      _loadSession();
+                                    },
+                                  ),
+                                  const SizedBox(height: 20),
                                   _buildInfoRow(
                                     label: 'Nama Lengkap',
                                     value: _session!.name.isEmpty
                                         ? _session!.username
                                         : _session!.name,
-                                    controller: _nameController,
-                                    editable: _isEditing,
                                   ),
                                   _buildInfoRow(
                                     label: 'Username',
                                     value: _session!.username,
-                                    editable: false,
                                   ),
                                   _buildInfoRow(
                                     label: 'User ID',
                                     value: _session!.userId,
-                                    editable: false,
                                   ),
                                   _buildInfoRow(
                                     label: 'No Telepon',
                                     value: _session!.phone,
-                                    controller: _phoneController,
-                                    editable: _isEditing,
                                   ),
-                                  if (_isChangingPassword)
-                                    _buildInfoRow(
-                                      label: 'Password',
-                                      value: '',
-                                      controller: _passwordController,
-                                      editable: true,
-                                      obscureText: true,
-                                    ),
                                   _buildInfoRow(
                                     label: 'Posisi',
                                     value: roleBadgeText,
-                                    editable: false,
                                   ),
+                                  if (isCustomer)
+                                    _buildInfoRow(
+                                      label: 'Alamat Lengkap',
+                                      value: _address,
+                                    ),
                                   _buildInfoRow(
                                     label: 'Tanggal Akun Dibuat',
                                     value: _formatDate(_session!.createdAt),
-                                    editable: false,
                                   ),
-                                  if (_isEditing) ...[
-                                    const SizedBox(height: 20),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: _buildGradientButton(
-                                            text: _isSaving ? 'Menyimpan...' : 'Simpan',
-                                            colors: const [
-                                              Color(0xFF729AC4),
-                                              Color(0xFF033A82),
-                                            ],
-                                            onTap: _isSaving ? () {} : _saveProfile,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: _buildGradientButton(
-                                            text: 'Batal',
-                                            colors: const [
-                                              Color(0xFF8BB8E0),
-                                              Color(0xFF4A90E6),
-                                            ],
-                                            onTap: _toggleEdit,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
                                   const SizedBox(height: 20),
-                                  if (!_isEditing)
-                                    _buildActionButton(
-                                      label: 'Ganti Password',
-                                      icon: Icons.lock_outline,
-                                      iconColor: const Color(0xFF4CAF50),
-                                      borderColor: const Color(0xFF4CAF50),
-                                      textColor: const Color(0xFF4CAF50),
-                                      backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
-                                      onTap: () {
-                                        setState(() {
-                                          _isEditing = true;
-                                          _isChangingPassword = true;
-                                          // Ensure password field is cleared for new input
-                                          _passwordController.text = '';
-                                        });
-                                      },
-                                    ),
+                                  _buildActionButton(
+                                    label: 'Ganti Password',
+                                    icon: Icons.lock_outline,
+                                    iconColor: const Color(0xFF4CAF50),
+                                    borderColor: const Color(0xFF4CAF50),
+                                    textColor: const Color(0xFF4CAF50),
+                                    backgroundColor: const Color(0xFF4CAF50).withOpacity(0.1),
+                                    onTap: () async {
+                                      await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => GantiPasswordView(session: _session!),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                   const SizedBox(height: 16),
                                   _buildGradientButton(
                                     text: 'Keluar Dari Akun',
@@ -610,9 +423,6 @@ class _ProfileViewState extends State<ProfileView> {
   Widget _buildInfoRow({
     required String label,
     required String value,
-    TextEditingController? controller,
-    bool editable = false,
-    bool obscureText = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -627,33 +437,17 @@ class _ProfileViewState extends State<ProfileView> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          if (editable && controller != null)
-            Expanded(
-              child: TextField(
-                controller: controller,
-                obscureText: obscureText,
-                textAlign: TextAlign.right,
-                style: const TextStyle(
-                  color: Color(0xFF033A82),
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-                decoration: const InputDecoration(
-                  isDense: true,
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.zero,
-                ),
-              ),
-            )
-          else
-            Text(
+          Flexible(
+            child: Text(
               value.isEmpty ? '-' : value,
+              textAlign: TextAlign.right,
               style: const TextStyle(
                 color: Color(0xFF033A82),
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
               ),
             ),
+          ),
         ],
       ),
     );

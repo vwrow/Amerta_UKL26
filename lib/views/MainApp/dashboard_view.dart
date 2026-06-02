@@ -873,6 +873,24 @@ class _DashboardViewState extends State<DashboardView> {
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
     final recentBills = sortedBills.take(3).toList();
 
+    // Calculate Pendapatan
+    final now = DateTime.now();
+    double totalPendapatan = 0;
+    double pendapatanBulanIni = 0;
+    for (var bill in _billsList.where((b) => b.verifiedPayment)) {
+      if (bill.month == now.month && bill.year == now.year) {
+        pendapatanBulanIni += bill.amount;
+      }
+      final billDate = DateTime(bill.year, bill.month, 1);
+      final sixMonthsAgo = DateTime(now.year, now.month - 5, 1);
+      if (!billDate.isBefore(sixMonthsAgo)) {
+        totalPendapatan += bill.amount;
+      }
+    }
+    
+    final formattedTotalPendapatan = 'Rp ${totalPendapatan.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+    final formattedPendapatanBulanIni = 'Rp ${pendapatanBulanIni.toInt().toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -955,6 +973,9 @@ class _DashboardViewState extends State<DashboardView> {
                           const SizedBox(height: 14),
 
                           _buildKelolaTagihanCard(totalTagihan),
+                          const SizedBox(height: 14),
+                          
+                          _buildPendapatanCard(formattedTotalPendapatan, formattedPendapatanBulanIni),
                           const SizedBox(height: 28),
 
                           const Text(
@@ -1223,6 +1244,86 @@ class _DashboardViewState extends State<DashboardView> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPendapatanCard(String total, String bulanIni) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: const Color(0xFFC2D4E6).withOpacity(0.4),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF5A8FD4).withOpacity(0.5),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Total Pendapatan 6 Bulan Terakhir',
+            style: TextStyle(
+              color: Color(0xFF035191),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Image.asset(
+                'assets/additional_icons/pendapatan6.png',
+                width: 44,
+                height: 44,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  total,
+                  style: const TextStyle(
+                    color: Color(0xFF033A82),
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              const Text(
+                'Bulan Ini',
+                style: TextStyle(
+                  color: Color(0xFF035191),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text(
+                '•',
+                style: TextStyle(
+                  color: Color(0xFF035191),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                bulanIni,
+                style: const TextStyle(
+                  color: Color(0xFF2EBD59),
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

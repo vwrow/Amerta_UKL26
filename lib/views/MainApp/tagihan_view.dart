@@ -149,16 +149,16 @@ class _TagihanViewState extends State<TagihanView> {
 
     String statusText = 'Belum dibayar';
     Color themeColor = const Color(0xFF8B1A1A); // Red/brown
-    Color softBgColor = const Color(0xFFFFEBEE);
+    Color softBgColor = const Color(0xFFFFEBEE).withOpacity(0.4);
 
     if (isVerified) {
       statusText = 'Sudah Lunas';
       themeColor = const Color(0xFF2EBD59); // Green
-      softBgColor = const Color(0xFFE8F5E9);
+      softBgColor = const Color(0xFFE8F5E9).withOpacity(0.4);
     } else if (hasReceipt) {
       statusText = 'Menunggu verifikasi';
       themeColor = const Color(0xFFFF9800); // Orange
-      softBgColor = const Color(0xFFFFF3E0);
+      softBgColor = const Color(0xFF95E800).withOpacity(0.035);
     }
 
     final isUnpaid = !isVerified && !hasReceipt;
