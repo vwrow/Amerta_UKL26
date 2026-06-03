@@ -265,10 +265,6 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                           decoration: BoxDecoration(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.3),
-                              width: 1.5,
-                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -348,10 +344,6 @@ class _VerifikasiTagihanViewState extends State<VerifikasiTagihanView> {
                           decoration: BoxDecoration(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.3),
-                              width: 1.5,
-                            ),
                           ),
                           child: bill.payment == null
                               ? const Padding(

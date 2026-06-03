@@ -281,12 +281,8 @@ class _BayarTagihanViewState extends State<BayarTagihanView> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF035191).withOpacity(0.12),
-                width: 1.5,
-              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -346,12 +342,8 @@ class _BayarTagihanViewState extends State<BayarTagihanView> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFF035191).withOpacity(0.12),
-                width: 1.5,
-              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,7 +362,7 @@ class _BayarTagihanViewState extends State<BayarTagihanView> {
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F7FF).withOpacity(0.5),
+                    color: const Color(0xFF5A8FD4).withOpacity(0.15),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color: const Color(0xFF729AC4).withOpacity(0.5),

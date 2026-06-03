@@ -68,57 +68,146 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
   }
 
   // --- PDF GENERATION LOGIC ---
-  Future<Uint8List> _generatePdf(PdfPageFormat format) async {
+Future<Uint8List> _generatePdf(PdfPageFormat format) async {
     final pdf = pw.Document(version: PdfVersion.pdf_1_5, compress: true);
     final customer = _currentBill.customer;
     
     final formattedPrice = 'Rp ${_currentBill.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
 
+    // 1. Define colors matching the image and your UI
+    final primaryColor = PdfColor.fromHex('#033A82'); // Dark Blue
+    final accentBlue = PdfColor.fromHex('#729AC4'); // Light Blue Text
+    final lineBlue = PdfColor.fromHex('#B5D2F0'); // Light Blue Underline
+    final pageBgColor = PdfColor.fromHex('#F4F9FF'); // Very Light Blue Background
+    final successColor = PdfColor.fromHex('#2EBD59'); // Green for Lunas
+    final warningColor = PdfColor.fromHex('#8B1A1A'); // Red for Belum Lunas
+    final totalBgColor = PdfColor.fromHex('#0B4B85'); // Blue Total Box (as requested)
+
+    final statusColor = _currentBill.verifiedPayment ? successColor : warningColor;
+    final statusText = _currentBill.verifiedPayment ? 'Lunas' : 'Belum Lunas';
+    final hasReceipt = _currentBill.payment != null;
+
+    // Helper function to build the rows exactly like the image
+    // INCREASED: Font size to 15, padding to 8/14 for a larger look
+    pw.Widget buildPdfRow(String label, String value, {PdfColor? customLabelColor, PdfColor? customValueColor, PdfColor? customLineColor}) {
+      return pw.Container(
+        padding: const pw.EdgeInsets.only(bottom: 8, top: 14),
+        decoration: pw.BoxDecoration(
+          border: pw.Border(bottom: pw.BorderSide(color: customLineColor ?? lineBlue, width: 1)),
+        ),
+        child: pw.Row(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(label, style: pw.TextStyle(color: customLabelColor ?? accentBlue, fontSize: 15)),
+            pw.SizedBox(width: 16),
+            pw.Expanded(
+              child: pw.Text(
+                value,
+                textAlign: pw.TextAlign.right,
+                style: pw.TextStyle(color: customValueColor ?? primaryColor, fontSize: 15, fontWeight: pw.FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     pdf.addPage(
       pw.Page(
-        pageFormat: format,
+        // Set the background color for the entire page
+        pageTheme: pw.PageTheme(
+          pageFormat: format,
+          // INCREASED: Horizontal margins to 64 to make it narrower/taller
+          margin: const pw.EdgeInsets.symmetric(horizontal: 64, vertical: 32),
+          buildBackground: (context) => pw.FullPage(
+            ignoreMargins: true,
+            child: pw.Container(color: pageBgColor),
+          ),
+        ),
         build: (context) {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              pw.Header(
-                level: 0,
-                child: pw.Text('Rincian Tagihan - AMERTA', style: pw.TextStyle(fontSize: 24, fontWeight: pw.FontWeight.bold)),
-              ),
-              pw.SizedBox(height: 20),
-              
-              pw.Text('Data Pelanggan', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-              pw.Divider(),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('Nama:'), pw.Text(customer?.name ?? 'Sonthony Mackie')]),
-              pw.SizedBox(height: 8),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('Layanan:'), pw.Text(_currentBill.service?.name ?? 'Rumah A')]),
-              pw.SizedBox(height: 8),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('No Pelanggan:'), pw.Text(customer?.customerNumber ?? 'C-33')]),
-              pw.SizedBox(height: 8),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('Alamat:'), pw.Text(customer?.address ?? 'Jl. Danau Poso 1 G2E16')]),
-              
-              pw.SizedBox(height: 30),
-              
-              pw.Text('Detail Pembayaran', style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold)),
-              pw.Divider(),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('Periode:'), pw.Text('${_getMonthName(_currentBill.month)} ${_currentBill.year}')]),
-              pw.SizedBox(height: 8),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('No meteran:'), pw.Text(_currentBill.measurementNumber)]),
-              pw.SizedBox(height: 8),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('Penggunaan:'), pw.Text('${_currentBill.usageValue} m3')]),
-              pw.SizedBox(height: 8),
-              pw.Row(mainAxisAlignment: pw.MainAxisAlignment.spaceBetween, children: [pw.Text('Status:'), pw.Text(_currentBill.verifiedPayment ? 'Lunas' : 'Belum Lunas')]),
-              
-              pw.SizedBox(height: 20),
-              
+              // --- 1. HEADER SECTION (Your AMERTA style) ---
               pw.Container(
-                padding: const pw.EdgeInsets.all(10),
-                color: PdfColors.blue100,
+                padding: const pw.EdgeInsets.all(24),
+                decoration: pw.BoxDecoration(
+                  color: primaryColor,
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(16)),
+                ),
                 child: pw.Row(
                   mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                   children: [
-                    pw.Text('TOTAL', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-                    pw.Text(formattedPrice, style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                    pw.Column(
+                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+                      children: [
+                        pw.Text(
+                          'AMERTA',
+                          style: pw.TextStyle(
+                            color: PdfColors.white,
+                            fontSize: 32, // INCREASED from 28
+                            fontWeight: pw.FontWeight.bold,
+                            letterSpacing: 2,
+                          ),
+                        ),
+                        pw.SizedBox(height: 4),
+                        pw.Text(
+                          'Tagihan Air Bersih',
+                          style: pw.TextStyle(color: accentBlue, fontSize: 16), // INCREASED from 14
+                        ),
+                      ],
+                    ),
+                    pw.Text(
+                      'INVOICE',
+                      style: pw.TextStyle(color: PdfColors.white, fontSize: 28, fontWeight: pw.FontWeight.bold), // INCREASED from 24
+                    ),
+                  ],
+                ),
+              ),
+              pw.SizedBox(height: 40), // INCREASED spacing
+              
+              // --- 2. DATA PELANGGAN ---
+              pw.Text('Data Pelanggan', style: pw.TextStyle(color: primaryColor, fontSize: 18, fontWeight: pw.FontWeight.bold)), // INCREASED from 16
+              buildPdfRow('Nama', customer?.name ?? 'Sonthony Mackie'),
+              buildPdfRow('Layanan', _currentBill.service?.name ?? 'Rumah A'),
+              buildPdfRow('No Pelanggan', customer?.customerNumber ?? 'C-33'),
+              buildPdfRow('Alamat', customer?.address ?? 'Jl. Kepala Muda No. 67\nSawojajar, Malang'),
+              
+              pw.SizedBox(height: 32), // INCREASED spacing
+              
+              // --- 3. DETAIL PEMBAYARAN ---
+              pw.Text('Detail Pembayaran', style: pw.TextStyle(color: primaryColor, fontSize: 18, fontWeight: pw.FontWeight.bold)), // INCREASED from 16
+              buildPdfRow('Periode', '${_getMonthName(_currentBill.month)} ${_currentBill.year}'),
+              buildPdfRow('No meteran', _currentBill.measurementNumber),
+              buildPdfRow('Total Penggunaan', '${_currentBill.usageValue} m³'),
+              
+              if (hasReceipt)
+                buildPdfRow('Tanggal Pembayaran', _formatPaymentDate(_currentBill.payment!.paymentDate)),
+              
+              // Status row with custom colors matching the image style
+              buildPdfRow(
+                'Status', 
+                statusText, 
+                customLabelColor: statusColor, 
+                customValueColor: statusColor, 
+                customLineColor: statusColor
+              ),
+              
+              pw.SizedBox(height: 32), // INCREASED spacing
+              
+              // --- 4. TOTAL BOX ---
+              pw.Container(
+                padding: const pw.EdgeInsets.symmetric(horizontal: 16, vertical: 16), // INCREASED padding
+                decoration: pw.BoxDecoration(
+                  color: totalBgColor,
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(10)),
+                ),
+                child: pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text('Total', style: pw.TextStyle(color: PdfColors.white, fontSize: 18, fontWeight: pw.FontWeight.bold)), // INCREASED from 16
+                    pw.Text(formattedPrice, style: pw.TextStyle(color: PdfColors.white, fontSize: 18, fontWeight: pw.FontWeight.bold)), // INCREASED from 16
                   ],
                 ),
               ),
@@ -259,10 +348,6 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                           decoration: BoxDecoration(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.3),
-                              width: 1.5,
-                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,10 +379,6 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                           decoration: BoxDecoration(
                             color: Colors.transparent,
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: const Color(0xFF035191).withOpacity(0.3),
-                              width: 1.5,
-                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -393,10 +474,6 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                             decoration: BoxDecoration(
                               color: Colors.transparent,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFF035191).withOpacity(0.3),
-                                width: 1.5,
-                              ),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -456,7 +533,7 @@ class _RincianTagihanViewState extends State<RincianTagihanView> {
                                   PaymentProofPreview(
                                     paymentProof: _currentBill.payment!.paymentProof,
                                     token: widget.token,
-                                    height: 220,
+                                    height: 450,
                                     fit: BoxFit.cover,
                                   ),
                                   const SizedBox(height: 16),
